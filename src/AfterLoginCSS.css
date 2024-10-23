@@ -1,0 +1,214 @@
+
+nav {
+    height: 100vh;
+    margin: 0;
+    top:20vh;
+    width: 20vw;
+    padding: 0;
+    background-color: #f7f7f5;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    /*position: fixed;*/
+    z-index: 999;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  main {
+    left: 0;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+  section {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .pluspage {
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .clickable:hover {
+    background-color: #e8e8e6;
+    cursor: pointer;
+  }
+  .border {
+    border-radius: 3px;
+  }
+  .clickableDark:hover {
+    background-color: #dadad8;
+    cursor: pointer;
+  }
+  .clickableDark {
+    padding: 1px;
+    border-radius: 5px;
+  }
+  .hide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .newPageList {
+    padding: 3px 10px 3px 10px;
+    border-radius: 5px;
+    display: flex;
+  }
+  .newPageList:hover {
+    background-color: #ededeb;
+  }
+  .main {
+    padding-left: 20vw;
+  }
+  .title1{
+    margin-bottom:0;
+    padding-left:10px;
+    
+  }
+  .title {
+    border-style: none;
+    background-color: none;
+    font-size: 40px;
+    font-weight: 600;
+  }
+  .title::placeholder {
+    color: #dadad8;
+  }
+  .title:focus {
+    outline: none;
+  }
+  .template {
+    color: #dadad8;
+    padding: 5px;
+    justify-content: center;
+    border-radius: 5px;
+    align-items: center;
+    cursor: pointer;
+  }
+  .template:hover {
+    background-color: #efefef;
+  }
+  .introduce {
+    color: #dadad8;
+    padding-bottom: 20px;
+  }
+  .block {
+    border-style: none;
+    background-color: none;
+    font-size: 15px;
+    padding: 5px;
+  }
+  .block::placeholder {
+    color: #dadad8;
+  }
+  .block:focus {
+    outline: none;
+  }
+  .newPage {
+    padding: 100px;
+    display: flex;
+    flex-direction: column;
+  }
+  .iconBar {
+    width: 110px;
+    padding: 3px;
+    border-radius: 5px;
+    color: rgb(179, 179, 179);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .iconBar:hover {
+    background-color: #efefef;
+  }
+  .resizeBar {
+    height: 100vh;
+    width: 10px;
+    padding-left: 20vw;
+    position: absolute;
+    z-index: 1;
+  }
+  .resizeBar:hover {
+    cursor: col-resize;
+  }
+  .newText {
+    padding-left: 3px;
+  }
+  .h1 {
+    font-size: 27px;
+    font-weight: 600;
+    padding-top: 30px;
+  }
+  .h2 {
+    font-size: 22px;
+    font-weight: 700;
+    padding-top: 30px;
+  }
+  .h3 {
+    font-size: 18px;
+    font-weight: 700;
+    padding-top: 30px;
+  }
+  .thisist {
+    
+    height: 80vh;
+    top:20vh;
+    width: 79vw;
+
+    height: 100vh;
+    margin: 0;
+    
+    
+    padding: 0;
+    background-color: #f7f7f5;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    /*position: fixed;*/
+    z-index: 999;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    
+    
+    
+    border:1px solid black;
+    
+    
+
+    
+  }
+  .lets{
+    height: 100vh;
+    
+    width: 20vw;
+   
+    
+    
+   
+    
+  
+
+  }
+  .lflex{
+
+    display:flex;
+  }
