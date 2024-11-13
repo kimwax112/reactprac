@@ -1,30 +1,36 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
-from users.models import User
+from django.contrib.auth.models import User  # Django 기본 사용자 모델을 사용하는 경우
+from rest_framework_simplejwt.tokens import RefreshToken
 import json
-from django.db import models
 
-# 로그인 처리 뷰
-@csrf_exempt  # CSRF 검사를 비활성화 (개발용으로만 사용)
+@csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
 
-        # userCode를 자동으로 생성하는 로직
-        # 현재 존재하는 모든 사용자 수를 기반으로 userCode를 생성
-        existing_users = User.objects.count()
-        userCode = f"{existing_users + 1:02d}A"  # 1부터 시작하며, 2자리 수로 형식화
-
-        try:
-            # 데이터베이스에서 해당 username과 password를 가진 사용자 검색
-            user = User.objects.get(username=username, password=password)
-            return JsonResponse({'message': '환영합니다!', 'username': user.username},status=200)
-        except User.DoesNotExist:
-            # 로그인 실패 시, 새 사용자 생성
-            User.objects.create(userCode=userCode, username=username, password=password)
-            return JsonResponse({'message': '상기 정보로 데이터베이스에 입력'}, status=201)
+        # 사용자 인증
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            # 사용자 인증 성공 시 JWT 토큰 발급
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'message': '환영합니다!',
+                'username': user.username,
+                'access_token': str(refresh.access_token),
+                'refresh_token': str(refresh)
+            }, status=200)
+        else:
+            # 사용자 인증 실패 시 새 사용자 생성
+            # 사용자가 존재하지 않는다면, 비밀번호를 해시화하여 저장
+            if User.objects.filter(username=username).exists():
+                return JsonResponse({'message': '로그인 정보가 잘못되었습니다.'}, status=400)
+            else:
+                # 새 사용자 생성 시 비밀번호 해시화
+                user = User.objects.create_user(username=username, password=password)
+                return JsonResponse({'message': '상기 정보로 데이터베이스에 입력되었습니다.'}, status=201)
 
     return JsonResponse({'message': '잘못된 요청입니다.'}, status=400)

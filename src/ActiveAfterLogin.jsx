@@ -45,7 +45,10 @@ function ActiveAfterLogin() {
               <div className="clickable border" onClick={handleAddTitle}>
                 새 글작성
               </div>
-              <div className="pluspage clickable border" onClick={handleAddTitle}>
+              <div
+                className="pluspage clickable border"
+                onClick={handleAddTitle}
+              >
                 +
               </div>
             </section>
