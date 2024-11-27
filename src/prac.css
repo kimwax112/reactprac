@@ -44,3 +44,29 @@ input {
     padding-left: 10px;
     background-color: rgb(233, 233, 233);
 }
+.active-login-body {
+    height: 100%;
+    margin: 0;
+    min-height: 100vh;
+    overflow: auto;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(rgb(241, 241, 241) 90%, rgb(104, 103, 103));
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .active-login-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(rgb(241, 241, 241) 90%, rgb(104, 103, 103));
+    font-family: Arial, sans-serif;
+  }
+  

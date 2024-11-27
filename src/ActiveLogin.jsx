@@ -15,27 +15,12 @@ function ActiveLogin() {
   const [usernameCheckMessage, setUsernameCheckMessage] = useState("");
 
   useEffect(() => {
-    document.documentElement.style.height = "100%";
-    document.body.style.height = "100%";
-    document.body.style.margin = "0";
-    document.body.style.minHeight = "100vh";
-    document.body.style.overflow = "auto";
-    document.body.style.flexDirection = "column";
-    document.body.style.fontFamily = "Arial, sans-serif";
-    document.body.style.textAlign = "center";
-    document.body.style.background =
-      "linear-gradient(rgb(241, 241, 241) 90%, rgb(104, 103, 103))";
-    document.body.style.backgroundSize = "contain";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.display = "flex";
-    document.body.style.justifyContent = "center";
-    document.body.style.alignItems = "center";
-
+    document.body.classList.add("active-login-body");
     return () => {
-      document.documentElement.style.height = "";
-      document.body.style.height = "";
+      document.body.classList.remove("active-login-body");
     };
   }, []);
+  
 
   const handleCheckUsername = async () => {
     const response = await fetch(
@@ -100,100 +85,102 @@ function ActiveLogin() {
   };
 
   return (
-    <div className="login">
-      <h1>{isSignup ? "회원가입" : "libello"}</h1>
-      {isSignup ? (
-        <form className="form1" onSubmit={handleSignupSubmit}>
-          <input
-            type="text"
-            className={`input-text ${!isUsernameValid ? "invalid" : ""}`}
-            placeholder="아이디 입력"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <button
-            type="button"
-            className="dupcheck"
-            onClick={handleCheckUsername}
-          >
-            중복 확인
-          </button>
-          <span>{usernameCheckMessage}</span>
-          <br />
-          <input
-            type="text"
-            className="input-text"
-            placeholder="이름 입력"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <br />
-          <input
-            type="email"
-            className="input-text"
-            placeholder="이메일 입력"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <br />
-          <input
-            type="password"
-            className="input-password"
-            placeholder="비밀번호 입력"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <br />
-          <input
-            type="password"
-            className="input-password"
-            placeholder="비밀번호 확인"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <br />
-          {message && <p style={{ color: "red" }}>{message}</p>}
-          <button type="submit" className="mpbutton">
-            회원가입
-          </button>
-          <button
-            type="button"
-            className="mpbutton"
-            onClick={() => setIsSignup(false)}
-          >
-            돌아가기
-          </button>
-        </form>
-      ) : (
-        <form className="form1" onSubmit={handleLoginSubmit}>
-          <input
-            type="text"
-            className="input-text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <br />
-          <input
-            type="password"
-            className="input-password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <br />
-          <button type="submit" className="mpbutton">
-            로그인
-          </button>
-          <button
-            type="button"
-            className="mpbutton"
-            onClick={() => setIsSignup(true)}
-          >
-            회원가입
-          </button>
-        </form>
-      )}
+    <div className="active-login-container">
+      <div className="login">
+        <h1>{isSignup ? "회원가입" : "libello"}</h1>
+        {isSignup ? (
+          <form className="form1" onSubmit={handleSignupSubmit}>
+            <input
+              type="text"
+              className={`input-text ${!isUsernameValid ? "invalid" : ""}`}
+              placeholder="아이디 입력"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <button
+              type="button"
+              className="dupcheck"
+              onClick={handleCheckUsername}
+            >
+              중복 확인
+            </button>
+            <span>{usernameCheckMessage}</span>
+            <br />
+            <input
+              type="text"
+              className="input-text"
+              placeholder="이름 입력"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <br />
+            <input
+              type="email"
+              className="input-text"
+              placeholder="이메일 입력"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <br />
+            <input
+              type="password"
+              className="input-password"
+              placeholder="비밀번호 입력"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <br />
+            <input
+              type="password"
+              className="input-password"
+              placeholder="비밀번호 확인"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <br />
+            {message && <p style={{ color: "red" }}>{message}</p>}
+            <button type="submit" className="mpbutton">
+              회원가입
+            </button>
+            <button
+              type="button"
+              className="mpbutton"
+              onClick={() => setIsSignup(false)}
+            >
+              돌아가기
+            </button>
+          </form>
+        ) : (
+          <form className="form1" onSubmit={handleLoginSubmit}>
+            <input
+              type="text"
+              className="input-text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <br />
+            <input
+              type="password"
+              className="input-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <br />
+            <button type="submit" className="mpbutton">
+              로그인
+            </button>
+            <button
+              type="button"
+              className="mpbutton"
+              onClick={() => setIsSignup(true)}
+            >
+              회원가입
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
