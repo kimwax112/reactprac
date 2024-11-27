@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // 사용자명 전달받기 위해 추가
 import "./AfterLoginCSS.css";
+import Comment from './savedText';
+ 
 
 function ActiveAfterLogin() {
   const location = useLocation();
@@ -45,7 +47,10 @@ function ActiveAfterLogin() {
               <div className="clickable border" onClick={handleAddTitle}>
                 새 글작성
               </div>
-              <div className="pluspage clickable border" onClick={handleAddTitle}>
+              <div
+                className="pluspage clickable border"
+                onClick={handleAddTitle}
+              >
                 +
               </div>
             </section>
@@ -65,7 +70,10 @@ function ActiveAfterLogin() {
           style={{ padding: "15px", background: "#eee" }}
           onInput={(e) => setContent(e.currentTarget.textContent)} // 입력 내용 업데이트
         >
-          {/* 내용 입력 공간 */}
+          <Comment/>
+          <Comment/>
+          <Comment/>
+          {/*{ 내용 입력 공간 }*/}
         </div>
       </div>
     </div>
