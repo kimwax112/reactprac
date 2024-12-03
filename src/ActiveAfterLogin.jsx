@@ -15,6 +15,7 @@ function ActiveAfterLogin() {
   const [posts, setPosts] = useState([]);
   const [isEditing, setIsEditing] = useState(false); // 수정 모드
   const [currentPostId, setCurrentPostId] = useState(null); // 수정 중인 글 ID
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -93,7 +94,7 @@ function ActiveAfterLogin() {
 
     fetchPosts();
   }, []);*/}
-
+  
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -205,6 +206,7 @@ function ActiveAfterLogin() {
     setCurrentPostId(post.id);
     setIsEditing(true);
     setIsWriting(true);
+    setSelectedPost(post);
   };
   const resetForm = () => {
     setTitle("");
@@ -214,12 +216,29 @@ function ActiveAfterLogin() {
     setIsWriting(false);
   };
 
-  const handleCancel = () => {
-    setTitle("");
-    setContent("");
-    setIsWriting(false);
-  };
 
+  const handleDelete = async (postId) => {
+    const token = localStorage.getItem("authToken");
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${currentPostId}/`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`, // 인증 토큰 추가
+        },
+      });
+  
+      if (response.status === 204) {
+        alert("게시물이 삭제되었습니다.");
+        setPosts((prev) => prev.filter((post) => post.id !== postId)); // 삭제된 글을 리스트에서 제거
+      } else {
+        alert("삭제 중 문제가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("서버와 통신 중 문제가 발생했습니다.");
+    }
+  };
   return (
     <div>
       <div className="title1">
@@ -289,7 +308,10 @@ function ActiveAfterLogin() {
             />
             <div>
               {isEditing ? (
+                <>
                 <button onClick={handleUpdate}>수정</button>
+                <button onClick={() => {resetForm(); handleDelete(currentPostId)}}>삭제</button>
+                </>
               ) : (
                 <button onClick={handleSave}>저장</button>
               )}

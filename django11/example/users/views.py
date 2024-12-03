@@ -196,3 +196,10 @@ class PostDetailView(APIView):
         post = get_object_or_404(Post, id=pk)
         serializer = PostSerializer(post)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    def delete(self, request, pk):
+        # 게시물 삭제
+        post = get_object_or_404(Post, id=pk)
+        if post.author != request.user:  # 삭제 권한 확인
+            return Response({'detail': '삭제 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+        post.delete()
+        return Response({'message': '게시물이 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)

@@ -15,5 +15,6 @@ urlpatterns = [
     path('posts/', PostView.as_view(), name='post-list'),   # 게시물 API
     path('posts/<str:pk>/', PostDetailView.as_view(), name='post-detail'),  # 단일 게시물 API
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
 ]
 
