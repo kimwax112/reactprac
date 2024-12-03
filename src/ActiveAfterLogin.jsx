@@ -1,31 +1,87 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // 사용자명 전달받기 위해 추가
+import { useLocation, useNavigate } from "react-router-dom";
 import "./AfterLoginCSS.css";
-import Comment from './savedText';
- 
 
 function ActiveAfterLogin() {
   const location = useLocation();
-  const username = location.state?.username || "User"; // 전달된 사용자명 또는 기본 "User"로 설정
+  const username = location.state?.username || "User";
   const navigate = useNavigate();
 
   // 상태 정의
-  const [content, setContent] = useState(""); // 입력된 내용
-  const [savedTitles, setSavedTitles] = useState([]); // 저장된 글 제목 목록
+  const [title, setTitle] = useState(""); // 제목 입력 상태
+  const [content, setContent] = useState(""); // 내용 입력 상태
+  const [savedTitles, setSavedTitles] = useState([]); // 저장된 제목 목록
+  const [isWriting, setIsWriting] = useState(false); // 글 작성 모드 활성화 여부
 
   const handleLogout = () => {
-    // 필요한 경우 사용자 세션이나 상태를 초기화하는 로직 추가
-    // 로그인 페이지로 리디렉션
-    navigate("/login"); // 로그인 페이지 경로로 수정
+    navigate("/login");
   };
 
-  const handleAddTitle = () => {
-    // content의 첫 4글자를 저장
-    if (content.length > 0) {
-      const title = content.slice(0, 4); // 첫 4글자 추출
-      setSavedTitles((prevTitles) => [...prevTitles, title]); // 저장된 제목 목록에 추가
-      setContent(""); // 입력 필드 초기화
+  const handleSave = async () => {
+    if (!title || !content) {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return;
     }
+
+    const timestamp = new Date().toISOString(); // ISO 형식으로 저장
+    const data = {
+      id: `T${String(savedTitles.length + 1).padStart(2, "0")}`,
+      author: username,
+      timestamp,
+      title,
+      content,
+    };
+
+    try {
+      // Django 서버에 POST 요청 (URL과 헤더를 Django API에 맞게 수정)
+      /*const response = await fetch("/api/posts/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });*/
+      const getCsrfToken = () => {
+        const csrfToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrftoken="))
+          ?.split("=")[1];
+        return csrfToken;
+      };
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/posts/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCsrfToken(),
+          },
+          credentials: "same-origin",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (response.ok) {
+        const savedTime = new Date(timestamp).toLocaleString("ko-KR", {
+          hour12: false,
+        });
+        setSavedTitles((prev) => [...prev, `${title} (${savedTime})`]);
+        setTitle("");
+        setContent("");
+        setIsWriting(false);
+      } else {
+        alert("저장 중 문제가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("Error saving post:", error);
+      alert("서버와 통신 중 문제가 발생했습니다.");
+    }
+  };
+
+  const handleCancel = () => {
+    setTitle("");
+    setContent("");
+    setIsWriting(false);
   };
 
   return (
@@ -44,14 +100,11 @@ function ActiveAfterLogin() {
               </div>
             </header>
             <section>
-              <div className="clickable border" onClick={handleAddTitle}>
-                새 글작성
-              </div>
               <div
-                className="pluspage clickable border"
-                onClick={handleAddTitle}
+                className="clickable border"
+                onClick={() => setIsWriting(true)}
               >
-                +
+                새 글작성
               </div>
             </section>
             {/* 저장된 제목 표시 */}
@@ -64,17 +117,43 @@ function ActiveAfterLogin() {
             </div>
           </nav>
         </div>
-        <div
-          className="thisist"
-          contentEditable="true"
-          style={{ padding: "15px", background: "#eee" }}
-          onInput={(e) => setContent(e.currentTarget.textContent)} // 입력 내용 업데이트
-        >
-          <Comment/>
-          <Comment/>
-          <Comment/>
-          {/*{ 내용 입력 공간 }*/}
-        </div>
+
+        {/* 글 작성 영역 */}
+        {isWriting ? (
+          <div
+            className="writing-area"
+            style={{ padding: "15px", background: "#eee" }}
+          >
+            <div>
+              <label>제목:</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="제목을 입력하세요"
+              />
+            </div>
+            <div>
+              <label>내용:</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="내용을 입력하세요"
+              />
+            </div>
+            <div>
+              <button onClick={handleSave}>저장</button>
+              <button onClick={handleCancel}>취소</button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="thisist"
+            style={{ padding: "15px", background: "#eee" }}
+          >
+            등록된 글이 없습니다! '새 글작성' 버튼을 눌러 새 글을 등록해주세요.
+          </div>
+        )}
       </div>
     </div>
   );

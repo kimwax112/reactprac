@@ -38,16 +38,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     ## 아래는 추가작성
-    'users',
     'rest_framework',  # DRF 사용 시
     'corsheaders',  # CORS 설정
+    'django_extensions',
+    'users.apps.UsersConfig',
+
+
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -84,6 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        
     }
 }
 
@@ -105,7 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -130,9 +134,20 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True  # React에서 Django API에 요청을 허용
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+# settings.py
+CSRF_COOKIE_NAME = 'csrftoken'  # CSRF 토큰 쿠키 이름
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # CSRF 헤더 이름
+# settings.py
+CSRF_COOKIE_HTTPONLY = False    # JavaScript에서 쿠키 접근을 허용
+CSRF_COOKIE_SECURE = False      # 프로덕션에서는 True로 설정해야 함 (HTTPS를 사용하는 경우)
+
+
