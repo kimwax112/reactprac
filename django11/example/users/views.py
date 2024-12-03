@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
+from users.models import UserInfo
 from django.shortcuts import get_object_or_404
 
 from rest_framework.views import APIView
@@ -133,7 +134,15 @@ def signup_view(request):
     return JsonResponse({'message': 'Invalid request'}, status=400)
 
 
-
+class UserPostsView2(APIView):
+    def get(self, request, username, *args, **kwargs):
+        try:
+            user = UserInfo.objects.get(username=username)
+            posts = Post.objects.filter(author=user)  # 사용자가 작성한 게시물 필터링
+            posts_data = [{"id": post.id, "title": post.title, "timestamp": post.timestamp} for post in posts]
+            return Response(posts_data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class UserPostsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -203,3 +212,18 @@ class PostDetailView(APIView):
             return Response({'detail': '삭제 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
         post.delete()
         return Response({'message': '게시물이 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
+class DeleteUserView(APIView):
+    permission_classes = [IsAuthenticated]  # 로그인된 사용자만 접근 가능
+
+    def delete(self, request, username, *args, **kwargs):
+        # 현재 로그인된 사용자와 요청한 사용자가 일치하는지 확인
+        if request.user.username != username:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            # 사용자가 존재하는지 확인
+            user = UserInfo.objects.get(username=username)
+            user.delete()  # 사용자 삭제
+            return Response({"detail": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)

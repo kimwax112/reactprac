@@ -181,7 +181,7 @@ nav {
     flex-direction: column;
     font-size: 15px;
     /*position: fixed;*/
-    z-index: 999;
+    /*z-index: 999;*/
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;

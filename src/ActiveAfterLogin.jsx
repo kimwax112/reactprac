@@ -1,6 +1,9 @@
 import React, { useEffect,useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./AfterLoginCSS.css";
+import Modal from "react-modal";
+
+Modal.setAppElement("#root");
 
 function ActiveAfterLogin() {
   //const username = location.state?.username || "User";
@@ -16,6 +19,7 @@ function ActiveAfterLogin() {
   const [isEditing, setIsEditing] = useState(false); // 수정 모드
   const [currentPostId, setCurrentPostId] = useState(null); // 수정 중인 글 ID
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -95,7 +99,8 @@ function ActiveAfterLogin() {
     fetchPosts();
   }, []);*/}
   
-
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("refreshToken");
@@ -103,6 +108,57 @@ function ActiveAfterLogin() {
 
   // 로그인 페이지로 리디렉션
   navigate("/login");
+  };
+
+  const handleDeleteAccount = async () => {
+    const token = localStorage.getItem("authToken");
+
+    try {
+      // 1. 사용자 게시물 삭제
+      const postsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/user/${username}/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (postsResponse.ok) {
+        const postsData = await postsResponse.json();
+        // 각 게시물 삭제
+        for (let post of postsData) {
+          const deleteResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${post.id}/`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!deleteResponse.ok) {
+            console.error(`Failed to delete post with ID: ${post.id}`);
+          }
+        }
+      }
+
+      // 2. 사용자 정보 삭제
+      const userResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${username}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (userResponse.ok) {
+        alert("탈퇴가 완료되었습니다.");
+        // 로그아웃 후 로그인 페이지로 리디렉션
+        handleLogout();
+      } else {
+        console.error("User deletion failed");
+        alert("회원탈퇴 중 문제가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("서버와 통신 중 문제가 발생했습니다.");
+    }
   };
   const getCsrfToken = () => {
     const csrfToken = document.cookie
@@ -261,6 +317,42 @@ function ActiveAfterLogin() {
               >
                 새 글작성
               </div>
+              
+            </section>
+            <section>
+            
+            <div className="clickable" onClick={openModal}>
+                회원탈퇴
+            </div>
+
+            <Modal
+            isOpen={isModalOpen}
+            onRequestClose={closeModal}
+            style={{
+            overlay: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+            content: {
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
+            width: "300px",
+            textAlign: "center",
+            borderRadius: "8px",
+            padding: "20px",
+          },
+        }}
+        >
+           <h2>탈퇴하시겠습니까?</h2>
+           <button onClick={handleDeleteAccount} style={{ marginTop: "20px" }}>
+                  확인
+                </button>
+          <button onClick={closeModal} style={{ marginTop: "20px" }}>
+          닫기
+          </button>
+          </Modal>
+      
             </section>
             {/* 저장된 제목 표시 */}
             <div className="posts-list">

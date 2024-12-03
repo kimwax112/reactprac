@@ -7,6 +7,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import login_view, PostView, check_username, PostDetailView, signup_view
+from . import views
 
 urlpatterns = [
     path('login/', login_view, name='login'),                # 로그인 API
@@ -15,6 +16,7 @@ urlpatterns = [
     path('posts/', PostView.as_view(), name='post-list'),   # 게시물 API
     path('posts/<str:pk>/', PostDetailView.as_view(), name='post-detail'),  # 단일 게시물 API
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
+    path('users/<str:username>/', views.DeleteUserView.as_view(), name='delete-user'),
+    path('posts/user/<str:username>/', views.UserPostsView2.as_view(), name='user-posts'),
 ]
 
