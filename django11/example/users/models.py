@@ -1,7 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 # 기존 사용자 모델 유지
-class UserInfo(models.Model):
+class UserInfo(AbstractUser):
     id = models.AutoField(primary_key=True)  # 기본키로 사용할 AutoField 추가
     username = models.CharField(max_length=100, unique=True)  # 사용자명 (UNIQUE)
     password = models.CharField(max_length=100)  # 비밀번호

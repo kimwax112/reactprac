@@ -11,9 +11,8 @@ function ActiveLogin() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [isUsernameValid, setIsUsernameValid] = useState(false);
   const [usernameCheckMessage, setUsernameCheckMessage] = useState("");
-
   useEffect(() => {
     document.body.classList.add("active-login-body");
     return () => {
@@ -27,12 +26,18 @@ function ActiveLogin() {
       `http://localhost:8000/api/check-username/?username=${username}`
     );
     const data = await response.json();
-    if (data.exists) {
-      setIsUsernameValid(false);
-      setUsernameCheckMessage("중복 Id입니다!");
+    if (!username.trim()) {
+      setMessage("입력 이후 중복확인을 진행하십시오");
+        return;
     } else {
+      if(data.exists){ 
+       
+        setIsUsernameValid(false);
+        setUsernameCheckMessage("중복 Id입니다!");
+      }else{
       setIsUsernameValid(true);
       setUsernameCheckMessage("사용 가능한 Id입니다.");
+      }
     }
   };
   const handleLoginSubmit = async (e) => {
@@ -48,17 +53,41 @@ function ActiveLogin() {
 
     const data = await response.json();
     if (response.ok && data.message === "환영합니다!") {
+      console.log(JSON.stringify(data) + " 데이터");
+      console.log(data.access_token+"엑세스토큰");  // access_token 값 확인
+      console.log(data.refresh_token+"리프레시토큰"); // refresh_token 값 확인
+      console.log(data.username+"유저네임");      // username 값 확인
+      localStorage.setItem("authToken", data.access_token); // 추가: 토큰 저장
+      localStorage.setItem("refreshToken", data.refresh_token);
+      localStorage.setItem("username", data.username);
+      console.log(localStorage.getItem("refreshToken")+"리프레시")
+      console.log(localStorage.getItem("authToken")+"토큰") 
+      console.log(localStorage.getItem("username")+"유저네임")  // 추가: 사용자 이름 저장
       navigate("/after-login", { state: { username: data.username } });
     } else {
       setMessage(data.message);
     }
   };
+  
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
+    if (!username.trim() && !password.trim()) {
+      setMessage("회원가입 정보를 입력해 주십시오.");
+      return;
+    }
 
+    if (!username.trim()) {
+      setMessage("아이디가 입력되지 않았습니다.");
+      return;
+    }
+
+    if (!password.trim()) {
+      setMessage("비밀번호가 입력되지 않았습니다.");
+      return;
+    }
     if (!isUsernameValid) {
-      setMessage("중복을 해결하세요");
+      setMessage("아이디 중복확인을 해주십시오.");
       return;
     }
 
@@ -72,7 +101,7 @@ function ActiveLogin() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password, email, name }),
+      body: JSON.stringify({ username, password }),
     });
 
     const data = await response.json();
@@ -83,6 +112,24 @@ function ActiveLogin() {
       setMessage(data.message);
     }
   };
+   // 회원가입 화면으로 이동 시 초기화
+   const handleGoToSignup = () => {
+    setUsername("");
+    setPassword("");
+    setMessage("");
+    setIsSignup(true);
+  };
+
+  // 로그인 화면으로 이동 시 초기화
+  const handleGoToLogin = () => {
+    setUsername("");
+    setPassword("");
+    setMessage("");
+    setConfirmPassword("");
+    setIsSignup(false);
+    setUsernameCheckMessage("");
+  };
+  
 
   return (
     <div className="active-login-container">
@@ -106,22 +153,22 @@ function ActiveLogin() {
             </button>
             <span>{usernameCheckMessage}</span>
             <br />
-            <input
+            {/*<input
               type="text"
               className="input-text"
               placeholder="이름 입력"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <br />
-            <input
+            <br />*/}
+            {/*<input
               type="email"
               className="input-text"
               placeholder="이메일 입력"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <br />
+            <br />*/}
             <input
               type="password"
               className="input-password"
@@ -145,7 +192,7 @@ function ActiveLogin() {
             <button
               type="button"
               className="mpbutton"
-              onClick={() => setIsSignup(false)}
+              onClick={handleGoToLogin}
             >
               돌아가기
             </button>
@@ -168,13 +215,15 @@ function ActiveLogin() {
               onChange={(e) => setPassword(e.target.value)}
             />
             <br />
+            <p>{message}</p>
             <button type="submit" className="mpbutton">
               로그인
             </button>
             <button
               type="button"
               className="mpbutton"
-              onClick={() => setIsSignup(true)}
+              onClick={handleGoToSignup}
+              
             >
               회원가입
             </button>

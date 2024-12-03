@@ -39,9 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     ## 아래는 추가작성
     'rest_framework',  # DRF 사용 시
+    'rest_framework_simplejwt',
     'corsheaders',  # CORS 설정
     'django_extensions',
-    'users.apps.UsersConfig',
+    'users',
+    
 
 
 
@@ -110,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+AUTH_USER_MODEL = 'users.UserInfo'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -141,7 +144,12 @@ CSRF_TRUSTED_ORIGINS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+  
 }
 # settings.py
 CSRF_COOKIE_NAME = 'csrftoken'  # CSRF 토큰 쿠키 이름

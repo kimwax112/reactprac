@@ -5,11 +5,14 @@
    # path('login/', login_view, name='login'),
     #path('posts/', PostView.as_view(), name='post-list'),
 from django.urls import path
-from .views import login_view, PostView
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import login_view, PostView, check_username, signup_view
 
 urlpatterns = [
-    path('login/', login_view, name='login'),
-    path('posts/', PostView.as_view(), name='post-list'),
-   
+    path('login/', login_view, name='login'),                # 로그인 API
+    path('signup/', signup_view, name='signup'),            # 회원가입 API
+    path('check-username/', check_username, name='check-username'),  # 아이디 중복 확인 API
+    path('posts/', PostView.as_view(), name='post-list'),   # 게시물 API
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 

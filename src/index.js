@@ -11,17 +11,17 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <>
   
-  <h1>테스트페이지1</h1>
+  {/*<h1>테스트페이지1</h1>
   <Write/>
   <link
   rel="stylesheet"
-  href="https://unpkg.com/react-quill@1.3.3/dist/quill.snow.css"/>
+  href="https://unpkg.com/react-quill@1.3.3/dist/quill.snow.css"/>*/}
   
- {/* <React.StrictMode>
+ <React.StrictMode>
     <App />
  
 
-  </React.StrictMode>*/}
+  </React.StrictMode>
   </>
 );
 
