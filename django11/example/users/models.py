@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.timezone import now
 
 # 기존 사용자 모델 유지
 class UserInfo(AbstractUser):
@@ -15,6 +16,7 @@ class Post(models.Model):
     id = models.CharField(max_length=10, primary_key=True, editable=False)  # 글 번호
     author = models.ForeignKey(UserInfo, on_delete=models.CASCADE, to_field='username')  # 'username'을 참조하도록 설정
     timestamp = models.DateTimeField(auto_now_add=True)  # 작성 시간
+    updated_at = models.DateTimeField(auto_now=True)     # 수정 시간
     title = models.CharField(max_length=200)  # 글 제목
     content = models.TextField()  # 글 내용
     def save(self, *args, **kwargs):

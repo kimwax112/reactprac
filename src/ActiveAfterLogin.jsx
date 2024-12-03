@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./AfterLoginCSS.css";
 
 function ActiveAfterLogin() {
-  const location = useLocation();
   //const username = location.state?.username || "User";
   const username = localStorage.getItem("username");
   const navigate = useNavigate();
@@ -14,9 +13,10 @@ function ActiveAfterLogin() {
   const [savedTitles, setSavedTitles] = useState([]); // 저장된 제목 목록
   const [isWriting, setIsWriting] = useState(false); // 글 작성 모드 활성화 여부
   const [posts, setPosts] = useState([]);
+  const [isEditing, setIsEditing] = useState(false); // 수정 모드
+  const [currentPostId, setCurrentPostId] = useState(null); // 수정 중인 글 ID
 
   useEffect(() => {
-    console.log(username+"팍이냐?")
     const fetchPosts = async () => {
       let token = localStorage.getItem("authToken"); // JWT 토큰
   
@@ -123,10 +123,10 @@ function ActiveAfterLogin() {
       title,
       content,
     };
+    const token = localStorage.getItem("authToken"); 
 
     try {
       // Access Token 가져오기 (예: localStorage에서)
-      const token = localStorage.getItem("authToken"); 
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/`, {
         method: "POST",
@@ -139,7 +139,7 @@ function ActiveAfterLogin() {
         body: JSON.stringify(data),
       });
 
-      if (response.ok) {
+      {/*if (response.ok) {
         const savedTime = new Date(timestamp).toLocaleString("ko-KR", {
           hour12: false,
         });
@@ -151,11 +151,67 @@ function ActiveAfterLogin() {
         const errorData = await response.json();
         console.error("Server Error:", errorData);
         alert("저장 중 문제가 발생했습니다.");
+      }*/}
+      if (response.ok) {
+        const newPost = await response.json();
+        setPosts((prev) => [...prev, newPost]); // 새 글 추가
+        resetForm();
+      } else {
+        alert("저장 중 문제가 발생했습니다.");
       }
     } catch (error) {
       console.error("Error saving post:", error);
       alert("서버와 통신 중 문제가 발생했습니다.");
     }
+  };
+
+  const handleUpdate = async () => {
+    if (!title || !content || !currentPostId) {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    const token = localStorage.getItem("authToken");
+    const timestamp = new Date().toISOString();
+    const data = { title, content, timestamp };
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${currentPostId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const updatedPost = await response.json();
+        setPosts((prev) =>
+          prev.map((post) => (post.id === currentPostId ? updatedPost : post))
+        );
+        resetForm();
+      } else {
+        alert("수정 중 문제가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+    }
+  };
+
+  const handleSelectPost = (post) => {
+    setTitle(post.title);
+    setContent(post.content);
+    setCurrentPostId(post.id);
+    setIsEditing(true);
+    setIsWriting(true);
+  };
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setCurrentPostId(null);
+    setIsEditing(false);
+    setIsWriting(false);
   };
 
   const handleCancel = () => {
@@ -182,7 +238,7 @@ function ActiveAfterLogin() {
             <section>
               <div
                 className="clickable border"
-                onClick={() => setIsWriting(true)}
+                onClick={() => {resetForm(); setIsWriting(true);}}
               >
                 새 글작성
               </div>
@@ -197,8 +253,17 @@ function ActiveAfterLogin() {
                {/* 게시물 리스트 */}
                {posts && posts.length > 0 ? (
                 posts.map((post) => (
-                  <div key={post.id}>
-                    <span>{post.title} - {new Date(post.timestamp).toLocaleDateString()}</span>
+                  <div key={post.id}  onClick={() => handleSelectPost(post)}   
+                  style={{ fontSize: "10px",cursor: "pointer", margin: "20px 0" }}>
+                    <span>
+                      {post.title} - 작성시간 : {new Date(post.timestamp).toLocaleDateString("ko-KR")}
+                      {post.updated_at && (
+                            <>
+                              <br />
+                              최종 수정 시간: {new Date(post.updated_at).toLocaleString("ko-KR")}
+                            </>
+                          )}
+                      </span>
                   </div>
                 ))
               ) : (
@@ -210,30 +275,25 @@ function ActiveAfterLogin() {
 
         {/* 글 작성 영역 */}
         {isWriting ? (
-          <div
-            className="writing-area"
-            style={{ padding: "15px", background: "#eee" }}
-          >
+          <div className="writing-area">
+            <input
+              type="text"
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="내용을 입력하세요"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
             <div>
-              <label>제목:</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="제목을 입력하세요"
-              />
-            </div>
-            <div>
-              <label>내용:</label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="내용을 입력하세요"
-              />
-            </div>
-            <div>
-              <button onClick={handleSave}>저장</button>
-              <button onClick={handleCancel}>취소</button>
+              {isEditing ? (
+                <button onClick={handleUpdate}>수정</button>
+              ) : (
+                <button onClick={handleSave}>저장</button>
+              )}
+              <button onClick={resetForm}>취소</button>
             </div>
           </div>
         ) : (
@@ -241,7 +301,7 @@ function ActiveAfterLogin() {
             className="thisist"
             style={{ padding: "15px", background: "#eee" }}
           >
-            등록된 글이 없습니다! '새 글작성' 버튼을 눌러 새 글을 등록해주세요.
+            새 글을 작성하거나 기존 글을 불러오세요!
           </div>
         )}
       </div>
