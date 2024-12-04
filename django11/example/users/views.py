@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from users.models import UserInfo
 from django.shortcuts import get_object_or_404
 
+from django.core.mail import send_mail
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -19,6 +21,8 @@ from django.db import connection
 from django.contrib.auth.hashers import make_password, check_password
 
 import json
+
+
 
 @csrf_exempt
 def validate_user(request, username, password):
@@ -233,3 +237,33 @@ class DeleteUserView(APIView):
             return Response({"detail": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
             return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+def send_post_email(request):
+    if request.method == 'POST':
+        try:
+            # JSON 데이터 파싱
+            data = json.loads(request.body)
+            post_id = data.get('postId')  # React와 동일한 키 사용
+            recipient_email = data.get('email')
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # 데이터베이스에서 글 가져오기
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+
+        # 이메일 내용 생성
+        subject = f"글 제목: {post.title}"
+        message = f"글 내용:\n\n{post.content}"
+        sender_email = 'your_email@gmail.com'
+
+        # 이메일 전송
+        try:
+            send_mail(subject, message, sender_email, [recipient_email])
+            return JsonResponse({'message': 'Email sent successfully'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

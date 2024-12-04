@@ -6,7 +6,7 @@
     #path('posts/', PostView.as_view(), name='post-list'),
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import login_view, PostView, check_username, PostDetailView, signup_view
+from .views import login_view, PostView, check_username, PostDetailView, signup_view, send_post_email
 from . import views
 
 urlpatterns = [
@@ -19,6 +19,6 @@ urlpatterns = [
 
     path('users/<str:username>/', views.DeleteUserView.as_view(), name='delete-user'),
     path('posts/user/<str:username>/', views.UserPostsView2.as_view(), name='user-posts'),
-    
+    path('send-email/', send_post_email, name='send_email'),
 ]
 

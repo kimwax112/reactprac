@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import Write from './ReactQuillP';
 import reportWebVitals from './reportWebVitals';
-
+import SendEmail from './SendEmail';
 import Comment from './savedText';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

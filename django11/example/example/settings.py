@@ -13,6 +13,17 @@ from datetime import timedelta
 
 from pathlib import Path
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP 서버
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alan112165@gmail.com'  # Gmail 계정
+EMAIL_HOST_PASSWORD = 'wgov oriq sxdm xfav'  # Gmail 비밀번호 또는 앱 비밀번호
+
+
+
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=6),  # 액세스 토큰 유효 시간
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # 리프레시 토큰 유효 시간

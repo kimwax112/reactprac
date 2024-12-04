@@ -3,11 +3,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./AfterLoginCSS.css";
 import Modal from "react-modal";
 import 'react-quill/dist/quill.snow.css';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import TokenExpiration from "./TokenExpiration";
 import { jwtDecode } from "jwt-decode";
-import RefreshToken from './RefreshToken'; 
+import RefreshToken from './RefreshToken';
+import SendEmail from "./SendEmail"; 
+import ImageResize from 'quill-image-resize';
 
+
+Quill.register('modules/ImageResize', ImageResize);
 Modal.setAppElement("#root");
 
 function ActiveAfterLogin() {
@@ -110,7 +114,13 @@ function ActiveAfterLogin() {
     };
 
     fetchPosts();
-  }, []);*/}
+
+  }, []);
+  let token = localStorage.getItem("authToken");
+  const decoded = jwtDecode(token);
+  const exp = decoded.exp;
+  
+  */}
   let token = localStorage.getItem("authToken");
   const decoded = jwtDecode(token);
   const exp = decoded.exp;
@@ -177,6 +187,7 @@ function ActiveAfterLogin() {
       alert("서버와 통신 중 문제가 발생했습니다.");
     }
   };
+ 
   const getCsrfToken = () => {
     const csrfToken = document.cookie
       .split("; ")
@@ -321,8 +332,11 @@ function ActiveAfterLogin() {
         <h1>libello</h1>
         <div style={{display: "flex"}}>
         <TokenExpiration exp={exp}/>
-        
-          {/*<h3>현재 액세스 토큰: {accessToken}</h3>
+
+          {/*
+                  <TokenExpiration exp={exp}/>
+
+          <h3>현재 액세스 토큰: {accessToken}</h3>
           <h3>현재 진짜 토큰: {localStorage.getItem("authToken")}</h3>*/}
           <div style={{marginLeft:'10px'}}>
           <RefreshToken 
@@ -490,7 +504,9 @@ function ActiveAfterLogin() {
                   [{ list: 'ordered' }, { list: 'bullet' }], // 리스트
                   ['link', 'image'], // 링크, 이미지 삽입
                   ['clean'], // 포맷 초기화
-                ],
+                ],ImageResize: {
+                  parchment: Quill.import('parchment')
+                }
               }}
               formats={[
                 'header',
@@ -502,6 +518,7 @@ function ActiveAfterLogin() {
                 'link',
                 'image',
               ]}
+              
               style={{ marginBottom: "1rem", width: "100%", height:"50vh" }}
             />
              {/*<div>
@@ -517,13 +534,21 @@ function ActiveAfterLogin() {
             <div style={{ display: "flex", gap: "1rem" }}>
               {isEditing ? (
                 <>
+                <div>
                 <button onClick={handleUpdate}>수정</button>
                 <button onClick={() => {resetForm(); handleDelete(currentPostId)}}>삭제</button>
+                <button onClick={resetForm}>취소</button>
+
+                </div>
+                <SendEmail postId={currentPostId}/>
+                
                 </>
               ) : (
+                <>
                 <button onClick={handleSave}>저장</button>
+                <button onClick={resetForm}>취소</button>
+                </>
               )}
-              <button onClick={resetForm}>취소</button>
             </div>
           </div>
           
