@@ -2,6 +2,11 @@ import React, { useEffect,useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./AfterLoginCSS.css";
 import Modal from "react-modal";
+import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
+import TokenExpiration from "./TokenExpiration";
+import { jwtDecode } from "jwt-decode";
+import RefreshToken from './RefreshToken'; 
 
 Modal.setAppElement("#root");
 
@@ -20,11 +25,19 @@ function ActiveAfterLogin() {
   const [currentPostId, setCurrentPostId] = useState(null); // 수정 중인 글 ID
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
+  const [accessToken, setAccessToken] = useState(null);
 
+  const refreshToken =localStorage.getItem("refreshToken");
+  const handleNewAccessToken = (newAccessToken) => {
+  setAccessToken(newAccessToken);
+  console.log('새로운 액세스 토큰:', newAccessToken);
+  localStorage.setItem("authToken", newAccessToken); 
+};
   useEffect(() => {
     const fetchPosts = async () => {
       let token = localStorage.getItem("authToken"); // JWT 토큰
-  
+      
       try {
         // 게시물 목록을 가져오기 위한 요청
         let response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/`, {
@@ -98,7 +111,9 @@ function ActiveAfterLogin() {
 
     fetchPosts();
   }, []);*/}
-  
+  let token = localStorage.getItem("authToken");
+  const decoded = jwtDecode(token);
+  const exp = decoded.exp;
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const handleLogout = () => {
@@ -109,7 +124,9 @@ function ActiveAfterLogin() {
   // 로그인 페이지로 리디렉션
   navigate("/login");
   };
-
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const handleDeleteAccount = async () => {
     const token = localStorage.getItem("authToken");
 
@@ -295,16 +312,33 @@ function ActiveAfterLogin() {
       alert("서버와 통신 중 문제가 발생했습니다.");
     }
   };
+  const handleContentChange = (value) => {
+    setContent(value);
+  };
   return (
     <div>
       <div className="title1">
         <h1>libello</h1>
+        <div style={{display: "flex"}}>
+        <TokenExpiration exp={exp}/>
+        
+          {/*<h3>현재 액세스 토큰: {accessToken}</h3>
+          <h3>현재 진짜 토큰: {localStorage.getItem("authToken")}</h3>*/}
+          <div style={{marginLeft:'10px'}}>
+          <RefreshToken 
+          
+            refreshToken={refreshToken}
+            onNewAccessToken={handleNewAccessToken}
+          />
+          </div>
+        </div>
       </div>
 
       <div className="lflex">
         <div className="lets">
           <nav>
-            <header className="clickable">
+            <div className="welcome" >
+            <header>
               <div>{username}님 환영합니다</div>
               <div className="hide border clickableDark" onClick={handleLogout}>
                 로그아웃
@@ -324,6 +358,7 @@ function ActiveAfterLogin() {
             <div className="clickable" onClick={openModal}>
                 회원탈퇴
             </div>
+           
 
             <Modal
             isOpen={isModalOpen}
@@ -354,51 +389,131 @@ function ActiveAfterLogin() {
           </Modal>
       
             </section>
+            <div style={{marginLeft:'10px',  marginbottom: "10px"}}>
+            <div>
+            글제목:
+            <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            </div>
+            </div>
+
             {/* 저장된 제목 표시 */}
-            <div className="posts-list">
-              {/*{savedTitles.map((title, index) => (
-                <div key={index} className="saved-title">
-                  {title}
-                </div>
-              ))}*/}
-               {/* 게시물 리스트 */}
+            {/*<div className="posts-list">
+           
+              
                {posts && posts.length > 0 ? (
                 posts.map((post) => (
-                  <div key={post.id}  onClick={() => handleSelectPost(post)}   
-                  style={{ fontSize: "10px",cursor: "pointer", margin: "20px 0" }}>
+                  <div className="clickable" key={post.id}  onClick={() => handleSelectPost(post)}   
+                  style={{ border:"10px", fontSize: "10px",cursor: "pointer", padding: "10px 0", marginRight:"2px"}}>
                     <span>
-                      {post.title} - 작성시간 : {new Date(post.timestamp).toLocaleDateString("ko-KR")}
+                      <div style={{fontSize:"15px"}}>
+                      {post.title} 
+                      </div>
+                      <div style={{textAlign:"right"}}>작성시간 : {new Date(post.timestamp).toLocaleDateString("ko-KR")}
                       {post.updated_at && (
                             <>
                               <br />
                               최종 수정 시간: {new Date(post.updated_at).toLocaleString("ko-KR")}
                             </>
                           )}
+                       </div>
                       </span>
                   </div>
                 ))
               ) : (
                 <div>저장된 글이 없습니다.</div>
               )}
+            </div>*/}
+            <div className="posts-list" style={{paddingLeft:"5px"}} >
+              {filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <div
+                    className="clickable"
+                    key={post.id}
+                    onClick={() => handleSelectPost(post)}
+                    style={{
+                      border: "10px",
+                      fontSize: "10px",
+                      cursor: "pointer",
+                      padding: "10px 0",
+                      marginRight: "2px",
+                    }}
+                  >
+                    <span>
+                      <div style={{ fontSize: "15px" }}>{post.title}</div>
+                      <div style={{ textAlign: "right", paddingRight:"10px" }}>
+                        작성시간 : {new Date(post.timestamp).toLocaleDateString("ko-KR")}
+                        {post.updated_at && (
+                          <>
+                            <br />
+                            최종 수정 시간:{" "}
+                            {new Date(post.updated_at).toLocaleString("ko-KR")}
+                          </>
+                                      )}
+                        </div>
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div>검색된 글이 없습니다.</div>
+                )}
+              </div>
+
             </div>
           </nav>
         </div>
 
         {/* 글 작성 영역 */}
         {isWriting ? (
-          <div className="writing-area">
+          
+          <div className="thisist2" style={{background:"#eee"}} >
             <input
               type="text"
               placeholder="제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <div style={{ marginBottom: "3rem" }}>
+            <ReactQuill
+              value={content}
+              onChange={handleContentChange}
+              placeholder="내용을 입력하세요"
+              modules={{
+                toolbar: [
+                  [{ header: [1, 2, false] }], // 헤더 스타일
+                  ['bold', 'italic', 'underline'], // 글꼴 스타일
+                  [{ list: 'ordered' }, { list: 'bullet' }], // 리스트
+                  ['link', 'image'], // 링크, 이미지 삽입
+                  ['clean'], // 포맷 초기화
+                ],
+              }}
+              formats={[
+                'header',
+                'bold',
+                'italic',
+                'underline',
+                'list',
+                'bullet',
+                'link',
+                'image',
+              ]}
+              style={{ marginBottom: "1rem", width: "100%", height:"50vh" }}
+            />
+             {/*<div>
+              <h3>입력된 내용</h3>
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
             <textarea
               placeholder="내용을 입력하세요"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-            />
-            <div>
+            />*/}
+            </div >
+            <div style={{ display: "flex", gap: "1rem" }}>
               {isEditing ? (
                 <>
                 <button onClick={handleUpdate}>수정</button>
@@ -410,13 +525,15 @@ function ActiveAfterLogin() {
               <button onClick={resetForm}>취소</button>
             </div>
           </div>
+          
         ) : (
           <div
             className="thisist"
-            style={{ padding: "15px", background: "#eee" }}
+            style={{ padding: "15px", background: "#eee", whiteSpace:"pre-wrap" }}
           >
-            새 글을 작성하거나 기존 글을 불러오세요!
+            <h1>환영합니다!<br></br>왼편에서 글을 불러오거나 새 글을 작성하세요!</h1> 
           </div>
+
         )}
       </div>
     </div>

@@ -30,7 +30,13 @@ def validate_user(request, username, password):
             return None  # 비밀번호 불일치
     except UserInfo.DoesNotExist:
         return None  # 사용자 존재하지 않음
-
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'access_expires': refresh.access_token.payload['exp'],  # 만료시간 추가
+    }
 def enable_foreign_key():
     with connection.cursor() as cursor:
         cursor.execute("PRAGMA foreign_keys = ON;")
