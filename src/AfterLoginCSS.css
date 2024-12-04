@@ -41,7 +41,7 @@ nav {
     padding-right: 5px;
   }
   .clickable:hover {
-    background-color: #e8e8e6;
+    background-color: #e8e6e6;
     cursor: pointer;
   }
   .border {
@@ -77,7 +77,8 @@ nav {
   .title1{
     margin-bottom:0;
     padding-left:10px;
-    
+    background-color: #f0c9d8;
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.12) inset
   }
   .title {
     border-style: none;
@@ -224,16 +225,17 @@ nav {
     
   }
   .lets{
-    height: auto;
+    height: 100vh;
     background-color: #f7f7f5;
         width: 22vw;
-       overflow-y: auto;
 
     
     
-   
+  }
+  .posts-list{
+    overflow-y: scroll;
+    height:80vh;
     
-  
 
   }
   .lflex{

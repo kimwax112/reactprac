@@ -317,7 +317,7 @@ function ActiveAfterLogin() {
   };
   return (
     <div>
-      <div className="title1">
+      <div className="title1" >
         <h1>libello</h1>
         <div style={{display: "flex"}}>
         <TokenExpiration exp={exp}/>
@@ -338,6 +338,7 @@ function ActiveAfterLogin() {
         <div className="lets">
           <nav>
             <div className="welcome" >
+              <div>
             <header>
               <div>{username}님 환영합니다</div>
               <div className="hide border clickableDark" onClick={handleLogout}>
@@ -400,7 +401,7 @@ function ActiveAfterLogin() {
             />
             </div>
             </div>
-
+            </div>
             {/* 저장된 제목 표시 */}
             {/*<div className="posts-list">
            
