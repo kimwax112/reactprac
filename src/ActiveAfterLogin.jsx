@@ -9,7 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import RefreshToken from './RefreshToken';
 import SendEmail from "./SendEmail"; 
 import ImageResize from 'quill-image-resize';
-
+import Spinner from "./Spinner";
 
 Quill.register('modules/ImageResize', ImageResize);
 Modal.setAppElement("#root");
@@ -18,6 +18,7 @@ function ActiveAfterLogin() {
   //const username = location.state?.username || "User";
   const username = localStorage.getItem("username");
   const navigate = useNavigate();
+  const quillRef = React.useRef(null);
 
   // 상태 정의
   const [title, setTitle] = useState(""); // 제목 입력 상태
@@ -31,6 +32,7 @@ function ActiveAfterLogin() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
   const [accessToken, setAccessToken] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const refreshToken =localStorage.getItem("refreshToken");
   const handleNewAccessToken = (newAccessToken) => {
@@ -120,7 +122,10 @@ function ActiveAfterLogin() {
   const decoded = jwtDecode(token);
   const exp = decoded.exp;
   
+  
   */}
+
+
   let token = localStorage.getItem("authToken");
   const decoded = jwtDecode(token);
   const exp = decoded.exp;
@@ -139,7 +144,7 @@ function ActiveAfterLogin() {
   );
   const handleDeleteAccount = async () => {
     const token = localStorage.getItem("authToken");
-
+    setLoading(true);
     try {
       // 1. 사용자 게시물 삭제
       const postsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/user/${username}/`, {
@@ -185,6 +190,8 @@ function ActiveAfterLogin() {
     } catch (error) {
       console.error("Error deleting account:", error);
       alert("서버와 통신 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false); // 로딩 상태를 false로 설정 (탈퇴 완료 후)
     }
   };
  
@@ -395,12 +402,16 @@ function ActiveAfterLogin() {
         }}
         >
            <h2>탈퇴하시겠습니까?</h2>
+           <div>
+          {loading && <Spinner />}
+          </div>
            <button onClick={handleDeleteAccount} style={{ marginTop: "20px" }}>
                   확인
                 </button>
           <button onClick={closeModal} style={{ marginTop: "20px" }}>
           닫기
           </button>
+        
           </Modal>
       
             </section>
@@ -494,6 +505,8 @@ function ActiveAfterLogin() {
             />
             <div style={{ marginBottom: "3rem" }}>
             <ReactQuill
+              ref={quillRef}
+
               value={content}
               onChange={handleContentChange}
               placeholder="내용을 입력하세요"
@@ -504,9 +517,13 @@ function ActiveAfterLogin() {
                   [{ list: 'ordered' }, { list: 'bullet' }], // 리스트
                   ['link', 'image'], // 링크, 이미지 삽입
                   ['clean'], // 포맷 초기화
-                ],ImageResize: {
+                ],
+               
+                ImageResize: {
                   parchment: Quill.import('parchment')
-                }
+                  
+                },
+               
               }}
               formats={[
                 'header',
